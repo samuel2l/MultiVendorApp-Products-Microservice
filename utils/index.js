@@ -73,15 +73,19 @@ module.exports.PublishMessage = (channel, bindingKey, msg) => {
 };
 
 // Consumes messages from a queue processes and acknowledges them.
-module.exports.SubscribeMessage = async (channel, service, bindingKey) => {
+module.exports.SubscribeMessage = async (channel, service) => {
   const appQueue = await channel.assertQueue(process.env.QUEUE_NAME, {
     durable: true,
   });
-  channel.bindQueue(appQueue.queue, process.env.EXCHANGE_NAME, bindingKey);
+  channel.bindQueue(appQueue.queue, process.env.EXCHANGE_NAME, process.env.PRODUCT_BINDING_KEY);
   channel.consume(appQueue.queue, (data) => {
-    console.log('SUBSCRIBED MESSAGE FUNCTION')
-    console.log("dataaa", data.content.toString());
+    console.log('raw data from subscribe message from products',data)
+    console.log('dataaa from product service',data.content.toString())
+    service.SubscribeEvents(data.content.toString())
+    
+
     channel.ack(data);
     
   });
+
 };

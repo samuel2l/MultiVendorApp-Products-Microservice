@@ -32,10 +32,10 @@ const ProductSchema = new Schema({
       "Music",
     ],
   },
-  unit: Number,
+  stock: {type:Number,required:true},
   price: { type: Number, required: true },
   available: Boolean,
-  supplier: { type: String, required: true },
+  seller: { type: String, required: true },
 });
 
 module.exports = mongoose.model("product", ProductSchema);

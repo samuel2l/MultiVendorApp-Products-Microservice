@@ -4,10 +4,10 @@ const Product  = require("../models/Product");
 class ProductRepository {
 
 
-    async CreateProduct({ name, desc,img, type, unit,price, available, supplier }){
+    async CreateProduct({ name, desc,img, type, stock,price, available, seller }){
 
         const product = new Product({
-            name, desc,img, type, unit,price, available, supplier
+            name, desc,img, type, stock,price, available, seller
         })
 
         const productResult = await product.save();

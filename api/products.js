@@ -1,11 +1,11 @@
 const ProductService = require("../services/product-service");
-const { PublishMessage } = require("../utils");
-const {auth,isSeller} = require("./middlewares/auth");
+const { PublishMessage,SubscribeMessage } = require("../utils");
+const {auth,isSeller} = require("./middleware/auth");
 
 productRoutes = (app, channel) => {
   const service = new ProductService();
+  SubscribeMessage(channel, service)
 
-  //get Top products and category
   app.get("/", async (req, res, next) => {
     //check validation
     try {
@@ -17,7 +17,7 @@ productRoutes = (app, channel) => {
   });
 
   app.post("/product/create",isSeller, async (req, res, next) => {
-    const { name, desc,img, type, unit, price, available, supplier } =
+    const { name, desc,img, type, stock, price, available, seller } =
       req.body;
     console.log(req.body);
     const { data } = await service.CreateProduct({
@@ -25,10 +25,10 @@ productRoutes = (app, channel) => {
       desc,
       img,
       type,
-      unit,
+      stock,
       price,
       available, 
-      supplier,
+      seller,
     });
     return res.json(data);
   });
@@ -110,10 +110,12 @@ productRoutes = (app, channel) => {
 
   app.put("/cart", auth, async (req, res, next) => {
     const { _id } = req.user;
+    console.log('ADD TO CART PUT ROUTE')
+    console.log(req.body)
 
     const { data } = await service.GetProductPayload(
       _id,
-      { productId: req.body._id, qty: req.body.qty },
+      { productId: req.body.product._id, amount: req.body.amount },
       "ADD_TO_CART"
     );
 
@@ -127,9 +129,9 @@ productRoutes = (app, channel) => {
       process.env.SHOPPING_BINDING_KEY,
       JSON.stringify(data)
     );
+console.log(data)
 
-
-    const response = { product: data.data.product, unit: data.data.qty };
+    const response = { product: data.data.product, stock: data.data.qty };
 
     res.status(200).json(response);
   });
@@ -155,7 +157,7 @@ productRoutes = (app, channel) => {
       JSON.stringify(data)
     );
 
-    const response = { product: data.data.product, unit: data.data.qty };
+    const response = { product: data.data.product, stock: data.data.qty };
 
     res.status(200).json(response);
   });
