@@ -62,7 +62,6 @@ class ProductService {
     console.log('REDUCING STOCK??????')
     for (let i = 0; i < data.length; i++) {
       const product = await this.repository.FindById(data[i].productId);
-      console.log("FOUND PRODUCT",product)
       product.stock = product.stock - data[i].productAmountBought;
       if (product.stock === 0) {
         product.available = false;
