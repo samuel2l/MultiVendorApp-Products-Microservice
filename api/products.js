@@ -7,7 +7,6 @@ productRoutes = (app, channel) => {
   SubscribeMessage(channel, service)
 
   app.get("/", async (req, res, next) => {
-    //check validation
     try {
       const { data } = await service.GetProducts();
       return res.status(200).json(data);
