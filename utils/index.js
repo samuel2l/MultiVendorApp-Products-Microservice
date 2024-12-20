@@ -1,10 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-// const axios = require("axios");
 const amqplib = require("amqplib");
 require("dotenv").config();
 
-//Utility functions
 
 module.exports.GeneratePassword = async (password) => {
   return await bcrypt.hash(password, 8);
@@ -45,14 +43,12 @@ module.exports.FormatData = (data) => {
   }
 };
 
-//Message Broker
 
 module.exports.CreateChannel = async () => {
   try {
     const connection = await amqplib.connect(process.env.MESSAGE_BROKER_URL);
     const channel = await connection.createChannel();
     //do not create exchanges on the cloud. this code nor will create it once connected
-    //may change this to assertQueue if issues arise
     await channel.assertExchange(process.env.EXCHANGE_NAME, "direct", {
       durable: true,
     });
@@ -72,7 +68,6 @@ module.exports.PublishMessage = (channel, bindingKey, msg) => {
   }
 };
 
-// Consumes messages from a queue processes and acknowledges them.
 module.exports.SubscribeMessage = async (channel, service) => {
   const appQueue = await channel.assertQueue(process.env.QUEUE_NAME, {
     durable: true,
