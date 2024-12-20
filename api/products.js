@@ -1,3 +1,4 @@
+const Product = require("../database/models/Product");
 const ProductService = require("../services/product-service");
 const { PublishMessage,SubscribeMessage } = require("../utils");
 const {auth,isSeller} = require("./middleware/auth");
@@ -15,9 +16,11 @@ productRoutes = (app, channel) => {
     }
   });
 
+
   app.post("/product/create",isSeller, async (req, res, next) => {
-    const { name, desc,img, type, stock, price, available, seller } =
+    const { name, desc,img, type, stock, price, available } =
       req.body;
+      const seller=req.user._id
     console.log(req.body);
     const { data } = await service.CreateProduct({
       name,
@@ -27,9 +30,50 @@ productRoutes = (app, channel) => {
       stock,
       price,
       available, 
-      seller,
+      seller
     });
     return res.json(data);
+  });
+
+  app.put("/product/:id", async (req, res) => {
+    const productId = req.params.id;
+    const { name, desc,img, type, stock, price, available } = req.body;
+    const seller=req.user._id
+
+    try {
+      const { data } = await service.UpdateProduct(productId, {
+        name,
+        desc,
+        img,
+        type,
+        stock,
+        price,
+        available, 
+        seller,
+      });
+
+      if (!data) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      return res.status(200).json(data);
+    } catch (error) {
+      return res.status(500).json({ error: "Failed to update product" });
+    }
+  });
+
+  app.delete("/product/:id",isSeller, async (req, res, next) => {
+const productId =req.params.id
+
+const foundProduct=await Product.findById(productId)
+if(foundProduct.seller==req.user._id){
+  const deletedProduct=await Product.findByIdAndDelete(productId)
+  res.json(deletedProduct)
+}
+else{
+  res.json({"error":"you are not the seller how you want delete product? ah chale you no dey try"})
+}
+
   });
 
   app.get("/category/:type", async (req, res, next) => {

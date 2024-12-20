@@ -83,7 +83,6 @@ module.exports.SubscribeMessage = async (channel, service) => {
     console.log('dataaa from product service',data.content.toString())
     service.SubscribeEvents(data.content.toString())
     
-
     channel.ack(data);
     
   });

@@ -36,6 +36,15 @@ class ProductRepository {
         const products = await Product.find().where('_id').in(selectedIds.map(_id => _id)).exec();
         return products;
     }
+
+    async UpdateProduct(id, updatedData) {
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            { $set: updatedData },
+            { new: true }
+        );
+        return updatedProduct;
+    }
     
 }
 

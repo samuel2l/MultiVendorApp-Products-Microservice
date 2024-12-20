@@ -1,7 +1,6 @@
 const ProductRepository = require("../database/repository/product-repository");
 const { FormatData } = require("../utils/index");
 
-// All Business logic will be here
 class ProductService {
   constructor() {
     this.repository = new ProductRepository();
@@ -26,6 +25,10 @@ class ProductService {
       categories: Object.keys(categories),
     });
   }
+  async UpdateProduct(productId, updatedData) {
+    const updatedProduct = await this.repository.UpdateProduct(productId, updatedData);
+    return FormatData(updatedProduct);
+}
 
   async GetProductDescription(productId) {
     const product = await this.repository.FindById(productId);
@@ -82,7 +85,7 @@ class ProductService {
         this.reduceStock(data);
         break;
     }
-    console.log("subscribe to events bitch");
+
   }
 }
 
