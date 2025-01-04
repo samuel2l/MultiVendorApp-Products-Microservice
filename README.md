@@ -69,7 +69,7 @@ You can now test the APIs
 
 ## Multivendor Application Services
 
-This is one of the four services for the **Multivendor Application**.  
+This is one of the three services for the **Multivendor Application**.  
 
 ### Related Repositories
 
