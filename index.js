@@ -7,7 +7,8 @@ const cors = require("cors");
 const port=process.env.PORT||8002
 const productRoutes = require("./api/products");
 app.use(express.json());
-app.use();
+app.use(cors());
+
 // app.use(cors({
 //   origin: ['http://localhost:3000', 'https://multivendorplatform-shopping-frontend.onrender.com'],
 //   credentials: true,
