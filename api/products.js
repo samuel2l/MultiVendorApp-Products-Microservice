@@ -98,11 +98,6 @@ else{
     }
   });
 
-  app.post("/ids", async (req, res, next) => {
-    const { ids } = req.body;
-    const products = await service.GetSelectedProducts(ids);
-    return res.status(200).json(products);
-  });
 
   app.put("/wishlist", auth, async (req, res, next) => {
     const { _id } = req.user;
