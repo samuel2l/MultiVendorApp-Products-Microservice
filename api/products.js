@@ -148,8 +148,6 @@ else{
 
   app.put("/cart", auth, async (req, res, next) => {
     const { _id } = req.user;
-    console.log('ADD TO CART PUT ROUTE')
-    console.log(req.body)
 
     const { data } = await service.GetProductPayload(
       _id,
@@ -168,8 +166,11 @@ else{
       JSON.stringify(data)
     );
 console.log(data)
+    //old
+    // const response = { product: data.data.product, stock: data.data.qty };
+    //new
+    const response = { product: data.data.product, amount: req.body.amount };
 
-    const response = { product: data.data.product, stock: data.data.qty };
 
     res.status(200).json(response);
   });
