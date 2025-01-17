@@ -16,9 +16,15 @@ productRoutes = (app, channel) => {
     }
   });
 
+  app.get("/seller-products",isSeller,async(req,res)=>{
+    const seller=req.user._id
+    const products= await Product.find({seller})
+    res.status(200).json(products)
+  })
+
 
   app.post("/product/create",isSeller, async (req, res, next) => {
-    const { name, desc,img, type, stock, price, available } =
+    const { name, desc,img, type, stock, price, available=true } =
       req.body;
       const seller=req.user._id
     console.log(req.body);
@@ -154,6 +160,8 @@ else{
       { productId: req.body.product._id, amount: req.body.amount },
       "ADD_TO_CART"
     );
+    console.log("in put cart route")
+    console.log(data)
 
     PublishMessage(
       channel,

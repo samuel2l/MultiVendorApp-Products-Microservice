@@ -34,7 +34,7 @@ const ProductSchema = new Schema({
   },
   stock: {type:Number,required:true},
   price: { type: Number, required: true },
-  available: Boolean,
+  available: {type:Boolean,default:true},
   seller: { type: String, required: true },
 });
 
