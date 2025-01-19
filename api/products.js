@@ -74,6 +74,7 @@ const productId =req.params.id
 const foundProduct=await Product.findById(productId)
 if(foundProduct.seller==req.user._id){
   const deletedProduct=await Product.findByIdAndDelete(productId)
+
   res.json(deletedProduct)
 }
 else{
@@ -103,54 +104,80 @@ else{
       return res.status(404).json({ error });
     }
   });
+  app.get("/search/:product", async (req, res, next) => {
+    try {
+      const product = req.params.product;
+  
+      const products = await Product.find({
+        name: { $regex: product, $options: "i" },
+      });
+
+      res.status(200).json(products);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: err.message });
+    }  });
+
+    app.put("/wishlist", auth, async (req, res, next) => {
+      const { _id } = req.user;
+  
+      const { data } = await service.GetProductPayload(
+        _id,
+        { productId: req.body.product._id, amount: req.body.amount },
+        "ADD_TO_WISHLIST"
+      );
+      console.log("in put wishlist route")
+      console.log(data)
+  
+      PublishMessage(
+        channel,
+        process.env.CUSTOMER_BINDING_KEY,
+        JSON.stringify(data)
+      );
+      PublishMessage(
+        channel,
+        process.env.SHOPPING_BINDING_KEY,
+        JSON.stringify(data)
+      );
+  console.log(data)
+      //old
+      // const response = { product: data.data.product, stock: data.data.qty };
+      //new
+      const response = { product: data.data.product, amount: req.body.amount };
+  
+  
+      res.status(200).json(response);
+    });
+  
+  
 
 
-  app.put("/wishlist", auth, async (req, res, next) => {
-    const { _id } = req.user;
-
-    const { data } = await service.GetProductPayload(
-      _id,
-      { productId: req.body._id },
-      "ADD_TO_WISHLIST"
-    );
-
-    PublishMessage(
-      channel,
-      process.env.CUSTOMER_BINDING_KEY,
-      JSON.stringify(data)
-    );
-
-    res.status(200).json(data.data.product);
-    //data.data.product cos payload looks like this:
-    // const payload = {
-    //     event: event,
-    //     data: { userId, product, qty}
-    // };
-  });
-
-  app.delete("/wishlist/:id", auth, async (req, res, next) => {
-    const { _id } = req.user;
-    const productId = req.params.id;
-
-    const { data } = await service.GetProductPayload(
-      _id,
-      { productId },
-      "REMOVE_FROM_WISHLIST"
-    );
-
-    PublishMessage(
-      channel,
-      process.env.CUSTOMER_BINDING_KEY,
-      JSON.stringify(data)
-    );
-    // PublishMessage(
-    //   channel,
-    //   process.env.SHOPPING_BINDING_KEY,
-    //   JSON.stringify(data)
-    // );
-
-    res.status(200).json(data.data.product);
-  });
+    app.delete("/wishlist/:id", auth, async (req, res, next) => {
+      const { _id } = req.user;
+      const productId = req.params.id;
+  
+      const { data } = await service.GetProductPayload(
+        _id,
+        { productId },
+        "REMOVE_FROM_WISHLIST"
+      );
+  
+      PublishMessage(
+        channel,
+        process.env.CUSTOMER_BINDING_KEY,
+        JSON.stringify(data)
+      );
+      PublishMessage(
+        channel,
+        process.env.SHOPPING_BINDING_KEY,
+        JSON.stringify(data)
+      );
+  
+      const response = { product: data.data.product, stock: data.data.qty };
+  
+      res.status(200).json(response);
+    });
+  
 
   app.put("/cart", auth, async (req, res, next) => {
     const { _id } = req.user;

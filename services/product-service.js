@@ -66,7 +66,7 @@ class ProductService {
     for (let i = 0; i < data.length; i++) {
       const product = await this.repository.FindById(data[i].productId);
       product.stock = product.stock - data[i].productAmountBought;
-      if (product.stock === 0) {
+      if (product.stock <= 0) {
         product.available = false;
       }
       await product.save()
