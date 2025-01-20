@@ -2,10 +2,11 @@ const Product = require("../database/models/Product");
 const ProductService = require("../services/product-service");
 const { PublishMessage,SubscribeMessage } = require("../utils");
 const {auth,isSeller} = require("./middleware/auth");
-
+let print=console.log
 productRoutes = (app, channel) => {
   const service = new ProductService();
   SubscribeMessage(channel, service)
+
 
   app.get("/", async (req, res, next) => {
     try {
@@ -16,12 +17,27 @@ productRoutes = (app, channel) => {
     }
   });
 
-  app.get("/seller-products",isSeller,async(req,res)=>{
-    const seller=req.user._id
+  //  THIS ROUTE GETS THE PRODUCTS OF A SELLER BY ID. USED WHEN YOU ARE GOING TO THE PROFILE OF THE SELLER OF A PRODUCT
+  //LIKE WHEN YOU SEE A PRODUCT AND WANT TO SEE WHO IS SELLING
+  app.get("/seller-products/:id",async(req,res)=>{
+
+    const seller=req.params.id
     const products= await Product.find({seller})
+
+    res.status(200).json(products)
+  })
+//THIS GETS THE PRODUCTS OF A SPECIFIC SELLER. LIKE WHEN YOU AS A SELLER WANTAS TO SEE ALL YOUR LISTED PRODUCTS
+  app.get("/products/seller",auth,async(req,res)=>{
+    print("REQUEST USERRR",req.user)
+    const seller=req.user._id
+    console.log(seller,"this is the seller id???????")
+    const products= await Product.find({seller})
+
+
     res.status(200).json(products)
   })
 
+  
 
   app.post("/product/create",isSeller, async (req, res, next) => {
     const { name, desc,img, type, stock, price, available=true } =
@@ -149,7 +165,7 @@ else{
       res.status(200).json(response);
     });
   
-  
+
 
 
     app.delete("/wishlist/:id", auth, async (req, res, next) => {

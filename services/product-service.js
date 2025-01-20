@@ -1,6 +1,6 @@
 const ProductRepository = require("../database/repository/product-repository");
 const { FormatData } = require("../utils/index");
-
+let print=console.log
 class ProductService {
   constructor() {
     this.repository = new ProductRepository();
@@ -30,20 +30,11 @@ class ProductService {
     return FormatData(updatedProduct);
 }
 
-  async GetProductDescription(productId) {
-    const product = await this.repository.FindById(productId);
-    return FormatData(product);
-  }
-
   async GetProductsByCategory(category) {
     const products = await this.repository.FindByCategory(category);
     return FormatData(products);
   }
 
-  async GetSelectedProducts(selectedIds) {
-    const products = await this.repository.FindSelectedProducts(selectedIds);
-    return FormatData(products);
-  }
 
   async GetProductPayload(userId, { productId, amount }, event) {
     const product = await this.repository.FindById(productId);
@@ -74,6 +65,8 @@ class ProductService {
     }
 
   }
+
+
   async SubscribeEvents(payload) {
     payload = JSON.parse(payload);
     console.log("PAYLOAD IN SUBSCRIBING TO PRODUCT SERVICE");
@@ -84,6 +77,7 @@ class ProductService {
       case "REDUCE_PRODUCT_STOCK":
         this.reduceStock(data);
         break;
+
     }
 
   }
