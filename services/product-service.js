@@ -36,15 +36,16 @@ class ProductService {
   }
 
 
-  async GetProductPayload(userId, { productId, amount }, event) {
+  async GetProductPayload(userId, { productId, amount }, event,isRemove) {
     const product = await this.repository.FindById(productId);
     console.log("FROM PRODUCT PAYLOAD TO BE SENT?????????", product);
 
     if (product) {
       const payload = {
         event: event,
-        data: { userId, product, amount },
+        data: { userId, product, amount,isRemove },
       };
+      print("payload returned from get product payloaddddd",payload)
 
       return FormatData(payload);
     } else {

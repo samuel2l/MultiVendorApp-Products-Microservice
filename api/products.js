@@ -57,10 +57,15 @@ productRoutes = (app, channel) => {
     return res.json(data);
   });
 
-  app.put("/product/:id", async (req, res) => {
+  app.put("/product/:id",auth, async (req, res) => {
     const productId = req.params.id;
     const { name, desc,img, type, stock, price, available } = req.body;
+    const product=await Product.findById(productId)
+    if (product.seller!=req.user._id){
+      res.status(403).json({"error":"Ah chale it is not your product why do you want to touch it?"})
+    }
     const seller=req.user._id
+
 
     try {
       const { data } = await service.UpdateProduct(productId, {
@@ -136,11 +141,14 @@ else{
 
     app.put("/wishlist", auth, async (req, res, next) => {
       const { _id } = req.user;
-  
+  print(req.body," dkd", req.body.userId,req.body.product,req.body.isRemove)
       const { data } = await service.GetProductPayload(
         _id,
-        { productId: req.body.product._id, amount: req.body.amount },
-        "ADD_TO_WISHLIST"
+        { productId: req.body.product._id, amount: req.body.amount ,},
+       
+        "ADD_TO_WISHLIST",
+req.body.isRemove,
+
       );
       console.log("in put wishlist route")
       console.log(data)
@@ -201,7 +209,8 @@ else{
     const { data } = await service.GetProductPayload(
       _id,
       { productId: req.body.product._id, amount: req.body.amount },
-      "ADD_TO_CART"
+      "ADD_TO_CART",
+      req.body.isRemove
     );
     console.log("in put cart route")
     console.log(data)
