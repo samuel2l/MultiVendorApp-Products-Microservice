@@ -26,6 +26,7 @@ class ProductService {
     });
   }
   async UpdateProduct(productId, updatedData) {
+    
     const updatedProduct = await this.repository.UpdateProduct(productId, updatedData);
     return FormatData(updatedProduct);
 }
@@ -36,11 +37,21 @@ class ProductService {
   }
 
 
-  async GetProductPayload(userId, { productId, amount }, event,isRemove) {
+  async GetProductPayload(userId, { productId, amount }, event,isRemove,{sizes,colors}) {
     const product = await this.repository.FindById(productId);
-    console.log("FROM PRODUCT PAYLOAD TO BE SENT?????????", product);
+    print("AHHHH THE EMPTY SIZE OR COLOR?",sizes,colors)
+
+    product.sizes=sizes
+    product.colors=colors
+    if(product.sizes===undefined){
+      product.sizes=[]
+    }
+    if(product.colors===undefined){
+      product.colors=[]
+    }
 
     if (product) {
+      print("ABOUT TO SEND OAYLOADDDDDDD AND THE UPDATED SIZE X COLOR IS",product.sizes,product.colors)
       const payload = {
         event: event,
         data: { userId, product, amount,isRemove },
