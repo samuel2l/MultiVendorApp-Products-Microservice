@@ -7,6 +7,7 @@ productRoutes = (app, channel) => {
   const service = new ProductService();
   SubscribeMessage(channel, service);
 
+  //GET ALL PRODUCTS
   app.get("/", async (req, res, next) => {
     try {
       const { data } = await service.GetProducts();
@@ -62,6 +63,8 @@ productRoutes = (app, channel) => {
     });
     return res.json(data);
   });
+
+  //edit product
 
   app.put("/product/:id", auth, async (req, res) => {
     const productId = req.params.id;
@@ -152,6 +155,10 @@ productRoutes = (app, channel) => {
     }
   });
 
+  //ADD TO WISHLIST. SAME PUT ROUTE USED FOR BOTH ADDING AND REMOVING
+  //DID NOT REMOVE THE DELETE ROUTES FOR BOTH CART AND WISHLIST COS IDK IF THAT IS WHAT YOU USED
+  //DO NOT KNOW IF IT WILL WORK THOUGH BUT I USE THE PUT ROUTE BELOW FOR BOTH REMOVAL AND ADDING BY SIMPLY ADDING AND isRemove property set as true to remove and false to add to cart or wishlist
+
   app.put("/wishlist", auth, async (req, res, next) => {
     const { _id } = req.user;
     const { data } = await service.GetProductPayload(
@@ -216,6 +223,11 @@ productRoutes = (app, channel) => {
 
     res.status(200).json(response);
   });
+
+
+    //ADD TO CART. SAME PUT ROUTE USED FOR BOTH ADDING AND REMOVING
+  //DID NOT REMOVE THE DELETE ROUTES FOR BOTH CART AND WISHLIST COS IDK IF THAT IS WHAT YOU USED
+  //DO NOT KNOW IF IT WILL WORK THOUGH BUT I USE THE PUT ROUTE BELOW FOR BOTH REMOVAL AND ADDING BY SIMPLY ADDING AND isRemove property set as true to remove and false to add to cart or wishlist
 
   app.put("/cart", auth, async (req, res, next) => {
     const { _id } = req.user;
