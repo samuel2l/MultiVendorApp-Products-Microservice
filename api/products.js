@@ -71,7 +71,7 @@ productRoutes = (app, channel) => {
     const {
       name,
       desc,
-      img = "",
+      img = [],
       type,
       stock,
       price,
@@ -81,7 +81,7 @@ productRoutes = (app, channel) => {
     } = req.body;
     const product = await Product.findById(productId);
     if (product.seller != req.user._id) {
-      res.status(403).json({
+      return res.status(403).json({
         error: "Ah chale it is not your product why do you want to touch it?",
       });
     }
@@ -107,10 +107,6 @@ productRoutes = (app, channel) => {
       );
       console.log("in update cart route");
       console.log(payload.data);
-      const  wishlistPayload  = await service.GetUpdatedProductPayload(
-        productId,
-        "UPDATE_WISHLIST_PRODUCT"
-      );
 
       PublishMessage(
         channel,
@@ -257,12 +253,12 @@ productRoutes = (app, channel) => {
 
   //ADD TO CART. SAME PUT ROUTE USED FOR BOTH ADDING AND REMOVING
   //DID NOT REMOVE THE DELETE ROUTES FOR BOTH CART AND WISHLIST COS IDK IF THAT IS WHAT YOU USED
-  //DO NOT KNOW IF IT WILL WORK THOUGH BUT I USE THE PUT ROUTE BELOW FOR BOTH REMOVAL AND ADDING BY SIMPLY ADDING AND isRemove property set as true to remove and false to add to cart or wishlist
+  //DO NOT KNOW IF IT WILL STILL WORK THOUGH(will probably still work) BUT I USE THE PUT ROUTE BELOW FOR BOTH REMOVAL AND ADDING BY SIMPLY ADDING AND isRemove property set as true to remove and false to add to cart or wishlist
 
   app.put("/cart", auth, async (req, res, next) => {
     const { _id } = req.user;
     print(req.body);
-    print("ahhjk dwd", req.body.sizes, req.body.colors);
+
     const { data } = await service.GetProductPayload(
       _id,
       { productId: req.body.product._id, amount: req.body.amount },

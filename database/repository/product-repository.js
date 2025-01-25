@@ -1,55 +1,70 @@
-const mongoose = require('mongoose');
-const Product  = require("../models/Product");
+const mongoose = require("mongoose");
+const Product = require("../models/Product");
 
 class ProductRepository {
+  async CreateProduct({
+    name,
+    desc,
+    img,
+    type,
+    stock,
+    price,
+    available,
+    sizes,
+    colors,
+    seller,
+  }) {
+    const product = new Product({
+      name,
+      desc,
+      img,
+      type,
+      stock,
+      price,
+      available,
+      sizes,
+      colors,
+      seller,
+    });
 
+    const productResult = await product.save();
+    return productResult;
+  }
 
-    async CreateProduct({ name, desc,img, type, stock,price, available,sizes,colors, seller }){
+  async Products() {
+    return await Product.find();
+  }
 
-        const product = new Product({
-            name, desc,img, type, stock,price, available,sizes,colors, seller
-        })
+  async FindById(id) {
+    return await Product.findById(id);
+  }
 
-        const productResult = await product.save();
-        return productResult;
+  async FindByCategory(category) {
+    const products = await Product.find({ type: category });
+
+    return products;
+  }
+
+  async FindSelectedProducts(selectedIds) {
+    const products = await Product.find()
+      .where("_id")
+      .in(selectedIds.map((_id) => _id))
+      .exec();
+    return products;
+  }
+
+  async UpdateProduct(id, updatedData) {
+    if (updatedData.img.length === 0) {
+      delete updatedData.img;
     }
 
-
-     async Products(){
-        return await Product.find();
-    }
-   
-    async FindById(id){
-        
-       return await Product.findById(id);
-
-    }
-
-    async FindByCategory(category){
-
-        const products = await Product.find({ type: category});
-
-        return products;
-    }
-
-    async FindSelectedProducts(selectedIds){
-        const products = await Product.find().where('_id').in(selectedIds.map(_id => _id)).exec();
-        return products;
-    }
-
-    async UpdateProduct(id, updatedData) {
-        if (updatedData.img === '') {
-            delete updatedData.img;
-        }
-
-        const updatedProduct = await Product.findByIdAndUpdate(
-            id,
-            { $set: updatedData }, 
-            { new: true }
-        );
-        return updatedProduct;
-    }
-    
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { $set: updatedData },
+      { new: true }
+    );
+    return updatedProduct;
+  }
 }
 
 module.exports = ProductRepository;
