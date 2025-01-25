@@ -4,10 +4,10 @@ const Product  = require("../models/Product");
 class ProductRepository {
 
 
-    async CreateProduct({ name, desc,img, type, stock,price, available, seller }){
+    async CreateProduct({ name, desc,img, type, stock,price, available,sizes,colors, seller }){
 
         const product = new Product({
-            name, desc,img, type, stock,price, available, seller
+            name, desc,img, type, stock,price, available,sizes,colors, seller
         })
 
         const productResult = await product.save();
@@ -38,9 +38,13 @@ class ProductRepository {
     }
 
     async UpdateProduct(id, updatedData) {
+        if (updatedData.img === '') {
+            delete updatedData.img;
+        }
+
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
-            { $set: updatedData },
+            { $set: updatedData }, 
             { new: true }
         );
         return updatedProduct;
