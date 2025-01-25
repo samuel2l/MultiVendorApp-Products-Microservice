@@ -64,6 +64,25 @@ class ProductService {
     }
   }
 
+  async GetUpdatedProductPayload(productId, event) {
+    const product = await this.repository.FindById(productId);
+    print("GETING UPDATED PRODUCT PAYLOAD ",product)
+
+
+    if (product) {
+      const payload = {
+        event: event,
+        data: { productId,name:product.name, desc:product.desc,img:product.img,type:product.type,stock:product.stock,price:product.price,available:product.available},
+      };
+      print("payload returned from updated product payloaddddd",payload)
+
+      return FormatData(payload);
+    } else {
+      return FormatData({ error: "No product Available" });
+    }
+  }
+
+
   async reduceStock(data) {
     console.log('REDUCING STOCK??????')
     for (let i = 0; i < data.length; i++) {

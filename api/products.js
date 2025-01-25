@@ -44,8 +44,8 @@ productRoutes = (app, channel) => {
       stock,
       price,
       available = true,
-      sizes=[],
-      colors=[],
+      sizes = [],
+      colors = [],
     } = req.body;
     const seller = req.user._id;
     console.log(req.body);
@@ -68,8 +68,17 @@ productRoutes = (app, channel) => {
 
   app.put("/product/:id", auth, async (req, res) => {
     const productId = req.params.id;
-    const { name, desc, img='', type, stock, price, available, sizes=[], colors=[] } =
-      req.body;
+    const {
+      name,
+      desc,
+      img = "",
+      type,
+      stock,
+      price,
+      available,
+      sizes = [],
+      colors = [],
+    } = req.body;
     const product = await Product.findById(productId);
     if (product.seller != req.user._id) {
       res.status(403).json({
@@ -92,6 +101,29 @@ productRoutes = (app, channel) => {
         seller,
       });
 
+      const  payload  = await service.GetUpdatedProductPayload(
+        productId,
+        "UPDATE_CART_PRODUCT"
+      );
+      console.log("in update cart route");
+      console.log(payload.data);
+      const  wishlistPayload  = await service.GetUpdatedProductPayload(
+        productId,
+        "UPDATE_WISHLIST_PRODUCT"
+      );
+
+      PublishMessage(
+        channel,
+        process.env.CUSTOMER_BINDING_KEY,
+        JSON.stringify(payload.data)
+      );
+      PublishMessage(
+        channel,
+        process.env.SHOPPING_BINDING_KEY,
+        JSON.stringify(payload.data)
+      );
+
+      
       if (!data) {
         return res.status(404).json({ error: "Product not found" });
       }
@@ -131,10 +163,10 @@ productRoutes = (app, channel) => {
 
   app.get("/:id", async (req, res, next) => {
     const productId = req.params.id;
-    print("gotten product id?????")
+    print("gotten product id?????");
 
     try {
-      const  data  = await Product.findById(productId);
+      const data = await Product.findById(productId);
       return res.status(200).json(data);
     } catch (error) {
       return res.status(404).json({ error });
@@ -174,10 +206,9 @@ productRoutes = (app, channel) => {
       { sizes: req.body.product.sizes, colors: req.body.product.colors }
     );
 
-
     console.log("in put wishlist route");
     console.log(data);
-    print("WISHLIST DATA TO BE PUBLISHED",data)
+    print("WISHLIST DATA TO BE PUBLISHED", data);
 
     PublishMessage(
       channel,
@@ -224,8 +255,7 @@ productRoutes = (app, channel) => {
     res.status(200).json(response);
   });
 
-
-    //ADD TO CART. SAME PUT ROUTE USED FOR BOTH ADDING AND REMOVING
+  //ADD TO CART. SAME PUT ROUTE USED FOR BOTH ADDING AND REMOVING
   //DID NOT REMOVE THE DELETE ROUTES FOR BOTH CART AND WISHLIST COS IDK IF THAT IS WHAT YOU USED
   //DO NOT KNOW IF IT WILL WORK THOUGH BUT I USE THE PUT ROUTE BELOW FOR BOTH REMOVAL AND ADDING BY SIMPLY ADDING AND isRemove property set as true to remove and false to add to cart or wishlist
 
