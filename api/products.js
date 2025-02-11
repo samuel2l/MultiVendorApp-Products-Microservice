@@ -68,7 +68,7 @@ productRoutes = (app, channel) => {
 
   app.put("/product/:id", auth, async (req, res) => {
     const productId = req.params.id;
-    const {
+    let {
       name,
       desc,
       img = [],
@@ -79,34 +79,73 @@ productRoutes = (app, channel) => {
       sizes = [],
       colors = [],
     } = req.body;
-    const product = await Product.findById(productId);
-    if (product.seller != req.user._id) {
-      return res.status(403).json({
-        error: "Ah chale it is not your product why do you want to touch it?",
-      });
-    }
-    const seller = req.user._id;
+
+    console.log("EVERYTHING:", {
+      productId,
+      name,
+      desc,
+      img,
+      type,
+      stock,
+      price,
+      available,
+      sizes,
+      colors,
+    });
 
     try {
-      const { data } = await service.UpdateProduct(productId, {
-        name,
-        desc,
-        img,
-        type,
-        stock,
-        price,
-        available,
-        sizes,
-        colors,
-        seller,
-      });
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
 
-      const  payload  = await service.GetUpdatedProductPayload(
+      if (product.seller.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          error:
+            "Ah chale, it is not your product, why do you want to touch it?",
+        });
+      }
+
+      console.log("After seller check");
+
+      const updatedData = {};
+
+      if (Array.isArray(img) && img.length > 0) updatedData.img = img;
+      if (Array.isArray(sizes) && sizes.length > 0) updatedData.sizes = sizes;
+      if (Array.isArray(colors) && colors.length > 0)
+        updatedData.colors = colors;
+
+      if (typeof name === "string" && name.trim() !== "")
+        updatedData.name = name;
+      if (typeof type === "string" && type.trim() !== "")
+        updatedData.type = type;
+      if (typeof desc === "string" && desc.trim() !== "")
+        updatedData.desc = desc;
+
+      if (price != null) updatedData.price = price;
+      if (available != null) updatedData.available = available;
+      if (stock != null) updatedData.stock = stock;
+
+      console.log("Data to update:", updatedData);
+
+      const updatedProduct = await Product.findByIdAndUpdate(
+        productId,
+        { $set: updatedData },
+        { new: true }
+      );
+
+      if (!updatedProduct) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      console.log("Product updated successfully");
+
+      const payload = await service.GetUpdatedProductPayload(
         productId,
         "UPDATE_CART_PRODUCT"
       );
-      console.log("in update cart route");
-      console.log(payload.data);
+
+      console.log("In update cart route", payload.data);
 
       PublishMessage(
         channel,
@@ -119,13 +158,9 @@ productRoutes = (app, channel) => {
         JSON.stringify(payload.data)
       );
 
-      
-      if (!data) {
-        return res.status(404).json({ error: "Product not found" });
-      }
-
-      return res.status(200).json(data);
+      return res.status(200).json(updatedProduct);
     } catch (error) {
+      console.error("Error updating product:", error);
       return res.status(500).json({ error: "Failed to update product" });
     }
   });
@@ -157,6 +192,35 @@ productRoutes = (app, channel) => {
     }
   });
 
+  app.get("/category-search/:category/:product", async (req, res, next) => {
+    const { category, product } = req.params;
+    print(category, product);
+    try {
+      const products = await Product.find({
+        name: { $regex: product, $options: "i" },
+        type: category,
+      });
+      return res.status(200).json(products);
+    } catch (error) {
+      return res.status(404).json({ error });
+    }
+  });
+
+  app.get("/seller-search/:seller/:product", async (req, res, next) => {
+    // 679e5c55a86f9eedcf8742a4 a
+    const { seller, product } = req.params;
+    print(seller, product);
+    try {
+      const products = await Product.find({
+        name: { $regex: product, $options: "i" },
+        seller: seller,
+      });
+      return res.status(200).json(products);
+    } catch (error) {
+      return res.status(404).json({ error });
+    }
+  });
+
   app.get("/:id", async (req, res, next) => {
     const productId = req.params.id;
     print("gotten product id?????");
@@ -174,6 +238,23 @@ productRoutes = (app, channel) => {
 
       const products = await Product.find({
         name: { $regex: product, $options: "i" },
+      });
+
+      res.status(200).json(products);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: err.message });
+    }
+  });
+
+  //SEARCH PRODUCT BY SPECIFIC SELLER
+  app.get("/seller-products/:seller/:product", async (req, res, next) => {
+    try {
+      const { seller, product } = req.params;
+
+      const products = await Product.find({
+        name: { $regex: product, $options: "i" },
+        seller,
       });
 
       res.status(200).json(products);

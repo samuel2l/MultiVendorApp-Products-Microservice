@@ -54,17 +54,35 @@ class ProductRepository {
   }
 
   async UpdateProduct(id, updatedData) {
-    if (updatedData.img.length === 0) {
-      delete updatedData.img;
-    }
+    print("Updated data received:", updatedData);
+
+    // Remove empty or undefined arrays
+    if (!Array.isArray(updatedData.img) || updatedData.img.length === 0) delete updatedData.img;
+    if (!Array.isArray(updatedData.sizes) || updatedData.sizes.length === 0) delete updatedData.sizes;
+    if (!Array.isArray(updatedData.colors) || updatedData.colors.length === 0) delete updatedData.colors;
+
+    // Remove empty strings
+    if (typeof updatedData.name === "string" && updatedData.name.trim() === "") delete updatedData.name;
+    if (typeof updatedData.type === "string" && updatedData.type.trim() === "") delete updatedData.type;
+    if (typeof updatedData.desc === "string" && updatedData.desc.trim() === "") delete updatedData.desc;
+
+    // Remove null or undefined numbers
+    if (updatedData.price == null) delete updatedData.price;
+    if (updatedData.available == null) delete updatedData.available;
+    if (updatedData.stock == null) delete updatedData.stock;
+
+    // If seller should NOT be updated, remove it
+    if (updatedData.seller) delete updatedData.seller;
+
+    print("Data to update:", updatedData);
 
     const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      { $set: updatedData },
-      { new: true }
+        id,
+        { $set: updatedData },
+        { new: true }
     );
+
     return updatedProduct;
-  }
-}
+}}
 
 module.exports = ProductRepository;

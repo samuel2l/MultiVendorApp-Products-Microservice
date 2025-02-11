@@ -94,15 +94,14 @@ class ProductService {
       await product.save()
 
     }
-
   }
-
 
   async SubscribeEvents(payload) {
     payload = JSON.parse(payload);
     console.log("PAYLOAD IN SUBSCRIBING TO PRODUCT SERVICE");
     console.log(payload);
     const { event, data } = payload;
+    print("EVENT AND DATA ",event,data)
 
     switch (event) {
       case "REDUCE_PRODUCT_STOCK":
