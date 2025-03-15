@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const ProductSchema = new Schema({
   name: { type: String, required: true },
   desc: { type: String, required: true },
-  img: { type: String },
+  img: { type: [String] },
   type: {
     type: String,
     enum: [

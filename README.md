@@ -69,7 +69,7 @@ You can now test the APIs
 
 ## Multivendor Application Services
 
-This is one of the three services for the **Multivendor Application**.  
+This is one of the four services for the **Multivendor Application**.  
 
 ### Related Repositories
 
@@ -84,3 +84,6 @@ This is one of the three services for the **Multivendor Application**.
 
 - **User Microservice:**  
   [MultiVendorApp-User-Service](https://github.com/samuel2l/MultiVendorApp-User-Service)
+
+- **Web App**: The web version of this app, designed by [haariswaqas](https://github.com/haariswaqas//MultivendorPlatform-Shopping-Frontend)
+- **Mobile App**: [Mobile app](https://github.com/samuel2l/MultiVendorPlatform-Mobile-Application)
